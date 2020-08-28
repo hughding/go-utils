@@ -10,40 +10,8 @@ import (
 )
 
 //生成INSERT INTO ON DUPLICATE KEY UPDATE SQL语句和参数
-func GenUpsertSQLAndParams(data interface{}, insertIgnoreFields []string, updateIgnoreFields []string) (string, []interface{}) {
-	sqlFormat := "INSERT INTO %s(%s) VALUES(%s) ON DUPLICATE KEY UPDATE %s"
-	insertIgnoreFieldMap := make(map[string]string)
-	updateIgnoreFieldsMap := make(map[string]string)
-	for _, f := range insertIgnoreFields {
-		insertIgnoreFieldMap[f] = f
-	}
-	for _, f := range updateIgnoreFields {
-		updateIgnoreFieldsMap[f] = f
-	}
-
-	var insertKeyStrList []string
-	var insertValueStrList []string
-	var insertValueList []interface{}
-	var updateKeyValueStrList []string
-	var updateValueList []interface{}
-	keyValueMap := getKeyValueMap(data)
-	for k, v := range keyValueMap {
-		if _, ok := insertIgnoreFieldMap[k]; !ok {
-			insertKeyStrList = append(insertKeyStrList, k)
-			insertValueStrList = append(insertValueStrList, "?")
-			insertValueList = append(insertValueList, v)
-		}
-
-		if _, ok := updateIgnoreFieldsMap[k]; !ok {
-			updateKeyValueStrList = append(updateKeyValueStrList, fmt.Sprintf("%s=?", k))
-			updateValueList = append(updateValueList, v)
-		}
-	}
-	valueList := append(insertValueList, updateValueList...)
-	insertKeyStr := strings.Join(insertKeyStrList, ",")
-	insertValueStr := strings.Join(insertValueStrList, ",")
-	updateKeyValueStr := strings.Join(updateKeyValueStrList, ",")
-	return fmt.Sprintf(sqlFormat, getXormTableName(data), insertKeyStr, insertValueStr, updateKeyValueStr), valueList
+func GenUpsertSQLAndParams(data interface{}, insertIgnoreFieldSet *hashset.Set, updateIgnoreFieldSet *hashset.Set) (string, []interface{}) {
+	return GenBatchUpsertSQLAndParams([]interface{}{data}, insertIgnoreFieldSet, updateIgnoreFieldSet)
 }
 
 //生成INSERT INTO ON DUPLICATE KEY UPDATE SQL语句和参数
