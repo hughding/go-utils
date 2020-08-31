@@ -20,15 +20,27 @@ type TQywxExternalContactExtInfo struct {
 }
 
 func TestGenUpsertSQLAndParams(t *testing.T) {
-	info := TQywxExternalContactExtInfo{
-		FUserid:         "",
-		FExternalUserid: "",
+	info1 := TQywxExternalContactExtInfo{
+		FUserid:         "a",
+		FExternalUserid: "b",
 		FType:           0,
-		FValue:          "",
+		FValue:          "c",
 		FDelFlag:        0,
 	}
+	info2 := TQywxExternalContactExtInfo{
+		FUserid:         "d",
+		FExternalUserid: "e",
+		FType:           0,
+		FValue:          "f",
+		FDelFlag:        0,
+	}
+	infos := []interface{}{&info1, &info2}
 
-	sql, params := GenUpsertSQLAndParams(info, hashset.New("f_id", "f_create_time", "f_update_time"), hashset.New("f_id", "f_create_time", "f_update_time"))
+	sql, params := GenUpsertSQLAndParams(info1, hashset.New("f_id", "f_create_time", "f_update_time"), hashset.New("f_id", "f_create_time", "f_update_time"))
 	fmt.Printf("sql=%s\n", sql)
 	fmt.Printf("params=%v\n", params)
+
+	batchSql, batchParams := GenBatchUpsertSQLAndParams(infos, hashset.New("f_id", "f_create_time", "f_update_time"), hashset.New("f_id", "f_create_time", "f_update_time"))
+	fmt.Printf("batchSql=%s\n", batchSql)
+	fmt.Printf("batchParams=%v\n", batchParams)
 }

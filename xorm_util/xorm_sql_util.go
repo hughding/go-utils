@@ -66,6 +66,11 @@ func getKeyValueMap(data interface{}) map[string]interface{} {
 	result := make(map[string]interface{})
 	t := reflect.TypeOf(data)
 	v := reflect.ValueOf(data)
+	if t.Kind() == reflect.Ptr {
+		v = reflect.Indirect(v)
+		t = v.Type()
+	}
+
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		columnName := getXormColumnName(field.Tag)
@@ -90,7 +95,8 @@ func getXormColumnName(tag reflect.StructTag) string {
 }
 
 func getXormTableName(data interface{}) string {
-	tableType := reflect.TypeOf(data).Name()
+	v := reflect.ValueOf(data)
+	tableType := reflect.Indirect(v).Type().Name()
 	return toSnakeCase(tableType)
 }
 
